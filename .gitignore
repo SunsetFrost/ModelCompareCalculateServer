@@ -1,3 +1,9 @@
+#program data
+data
+instance
+model
+.vscode
+
 # Logs
 logs
 *.log

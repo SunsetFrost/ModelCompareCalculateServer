@@ -1,0 +1,28 @@
+{
+  "name": "compare_server",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "babel src -d dist --source-maps"
+  },
+  "author": "sunsetfrost",
+  "license": "ISC",
+  "dependencies": {
+    "bluebird": "^3.5.1",
+    "body-parser": "^1.18.2",
+    "bson-objectid": "^1.2.2",
+    "compression": "^1.7.1",
+    "express": "^4.16.2",
+    "isomorphic-fetch": "^2.2.1",
+    "lodash": "^4.17.4",
+    "moment": "^2.20.1",
+    "mongoose": "^4.13.7",
+    "proj4": "^2.4.4",
+    "request": "^2.83.0",
+    "request-promise": "^4.2.2",
+    "sleep": "^5.1.1"
+  },
+  "devDependencies": {}
+}
