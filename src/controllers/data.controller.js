@@ -2,9 +2,10 @@ const util = require('util');
 const fs = require('fs');
 const proj4 = require('proj4');
 const exec = util.promisify(require('child_process').exec);
+require('isomorphic-form-data');
 
 const ApiModel = require('../models/api.model');
-const RequestCtrl = require('../controllers/request.controller');
+const RequestCtrl = require('../controllers/fetch.controller');
 
 const testAttr = ['gpp', 'npp', 'nee', 'co2'];
 
@@ -125,18 +126,20 @@ async function invokeScript(configPath) {
 //向门户上传数据
 async function uploadData(dataPath) {
     const url = ApiModel.getAPIUrl('upload-data');
-    const body = {
-        userId: '5a4200750afd24482430882c',
-        desc: '',
-        src: '0',
-        'geo-data': fs.createReadStream(dataPath)
+
+    const form = new FormData();
+    form.append('userId', '5a4200750afd24482430882c');
+    form.append('desc', '');
+    form.append('src', 0);
+    form.append('geo-data', fs.createReadStream(dataPath));
+
+    const options = {
+        method: 'POST',
+        body: form
     }
-    try {
-        const result = await RequestCtrl.postByServer(url, body, RequestCtrl.PostRequestType.File);
-        return JSON.parse(result).data.doc._id.toString();
-    } catch (error) {
-        console.log(error);
-    }
+
+    const result = await RequestCtrl.request(url, options, 'file');
+    return result.data.doc._id.toString();
 }
 
 //main

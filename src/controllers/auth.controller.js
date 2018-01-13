@@ -3,37 +3,43 @@ const _ = require('lodash');
 const setting = require('../config/setting');
 const ApiModel = require('../models/api.model');
 const authDB = require('../models/auth.model');
-const RequestCtrl = require('../controllers/request.controller');
+const RequestCtrl = require('../controllers/fetch.controller');
 
 //获取门户node秘钥
 async function getNodeTokenFromPortal() {
     const url = ApiModel.getAPIUrl('get-node-token');
-    const body = {
-        host: setting.host,
-        port: setting.port,
-        auth: {
-            nodeName: setting.app.name,
-            password: setting.password,
-            src: 0
+    const options = {
+        method: 'POST',
+        body: {
+            host: setting.host,
+            port: setting.port,
+            auth: {
+                nodeName: setting.app.name,
+                password: setting.password,
+                src: 0    
+            }
         }
-    }
+    };
     try {
-        const result = await RequestCtrl.postByServer(url, body, RequestCtrl.PostRequestType.JSON);
+        const result = await RequestCtrl.request(url, options);
         console.log(result);
     } catch (error) {
-        console.log(error);
+        return error;
     }
 }
 
 //获取门户登录秘钥
 async function getLoginTokenFromPortal() {
     const url = ApiModel.getAPIUrl('get-login-token');
-    const body = {
-        username: setting.user.username,
-        password: setting.user.password
+    const options = {
+        method: 'POST',
+        body: {
+            username: setting.user.username,
+            password: setting.user.password    
+        }
     }
     try {
-        const result = await RequestCtrl.postByServer(url, body, RequestCtrl.PostRequestType.JSON);
+        const result = await RequestCtrl.request(url, options);
 
         if(result.data.jwt.token == null) {
             throw "get token error";
@@ -61,12 +67,15 @@ async function getLoginTokenFromPortal() {
 //更新login秘钥
 async function updateLoginToken() {
     const url = ApiModel.getAPIUrl('get-login-token');
-    const body = {
-        username: setting.user.username,
-        password: setting.user.password
+    const options = {
+        method: 'POST',
+        body: {
+            username: setting.user.username,
+            password: setting.user.password
+        }
     }
     try {
-        const result = await RequestCtrl.postByServer(url, body, RequestCtrl.PostRequestType.JSON);
+        const result = await RequestCtrl.request(url, options, 'login');
 
         if(result.data.jwt.token == null) {
             throw "get token error";
@@ -78,7 +87,7 @@ async function updateLoginToken() {
         }
         const strUpdate = {
             $set: {
-                'user.token': setting.usertoken
+                'user.token': result.data.jwt.token
             }  
         }
 
@@ -91,13 +100,15 @@ async function updateLoginToken() {
 //更新node秘钥
 async function updateNodeToken() {
     const url = ApiModel.getAPIUrl('update-node-token');
-    const body = {
+    const options = {
+        method: 'POST',
+        body: {
             nodeName: setting.app.name,
             password: setting.password,
-            Authorization: "bearer " + setting.usertoken
+        }
     }
     try {
-        const result = await RequestCtrl.postByServer(url, body, RequestCtrl.PostRequestType.JSON);
+        const result = await RequestCtrl.request(url, options, 'node');
 
         if(result.data.token == null) {
             throw "get token error";
@@ -109,7 +120,7 @@ async function updateNodeToken() {
         }
         const strUpdate = {
             $set: {
-                'node.token': setting.nodetoken
+                'node.token': result.data.jwt.token
             }  
         }
         const res = await authDB.update(strWhere, strUpdate);

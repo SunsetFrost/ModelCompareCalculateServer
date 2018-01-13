@@ -24,9 +24,8 @@ async function getTasks() {
     const url = ApiModel.getAPIUrl('get-tasks', {
         nodeName: setting.app.name
     });
-    const options = {};
     try {
-        const result = await RequestCtrl.request(url, options);
+        const result = await RequestCtrl.request(url, {});
         const tasks = result.data.docs;
         return tasks;
     } catch (error) {
@@ -40,17 +39,15 @@ async function changeTaskState(instanceId, oldState, newState) {
         nodeName: setting.app.name,
         instanceId: instanceId
     });
-    const header = {
-        Authorization: 'bearer ' + setting.usertoken,
-        'Authorization-node': 'bearer ' + setting.nodetoken,
-        'content-type': 'application/json'
-    }
-    const body = {
-        oldState: oldState,
-        newState: newState
+    const options = {
+        method: 'PUT',
+        body: {
+            oldState: oldState,
+            newState: newState
+        }
     }
     try {
-        const result = await RequestCtrl.putByServer(url, header, body);
+        const result = await RequestCtrl.request(url, options);
     } catch (error) {
         console.log(error);
     }
@@ -92,12 +89,14 @@ async function updateTaskDataId(taskId, dataInfos) {
         nodeName: setting.app.name,
         taskId: taskId
     })
-    const body = {
-        outputs: JSON.stringify(dataInfos)
+    const options = {
+        method: 'POST',
+        body: {
+            outputs: dataInfos
+        }
     }
     try {
-        const result = await RequestCtrl.postByServer(url, body, RequestCtrl.PostRequestType.JSON);
-        const test = '';
+        const result = await RequestCtrl.request(url, options);
     } catch (error) {
         console.log(error);
     }

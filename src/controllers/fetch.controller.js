@@ -15,25 +15,44 @@ function checkStatus(response) {
     throw error;
 }
 
-async function fetchRequest(url, options) {
+async function fetchRequest(url, options, type) {
     const tokenLogin = await AuthCtrl.getLocalLoginToken();
     const tokenNode = await AuthCtrl.getLocalNodeToken();
-    const defaultOptions = {
+    let defaultOptions = {
         //Fetch 请求默认是不带 cookie 的，需要设置 fetch(url, {credentials: 'include'})
         credentials: 'incluede',
-        headers: {
-            Authorization: 'bearer ' + tokenLogin,
-            'Authorization-node': 'bearer ' + tokenNode,            
-        }
     };
+    if(type == 'node') {
+        defaultOptions = {...defaultOptions, ...{
+            headers: {
+                Authorization: 'bearer ' + tokenLogin
+            }
+        }}
+    } else if(type == 'login'){
+        defaultOptions = {...defaultOptions, ...{}}
+    } else {
+        defaultOptions = {...defaultOptions, ...{
+            headers: {
+                Authorization: 'bearer ' + tokenLogin,
+                'Authorization-node': 'bearer ' + tokenNode,            
+            }
+        }}
+    }
     const newOptions = { ...defaultOptions, ...options };
     if(newOptions.method === 'POST' || newOptions.method === 'PUT') {
-        newOptions.headers = {
-            Accept: 'application/json',
-            'Content-Type': 'application/json; charset=utf-8',
-            ...newOptions.headers,
-        };
-        newOptions.body = JSON.stringify(newOptions.body);
+        if(type == 'file') {
+            newOptions.headers = {
+                ...newOptions.headers
+            };
+            // newOptions.body = JSON.stringify(newOptions.body);    
+        } else {
+            newOptions.headers = {
+                Accept: 'application/json',
+                'Content-Type': 'application/json; charset=utf-8',
+                ...newOptions.headers,
+            };
+            newOptions.body = JSON.stringify(newOptions.body);   
+        }
     }
 
     try {
@@ -52,10 +71,10 @@ async function fetchRequest(url, options) {
     }    
 }
 
-async function request(url, options) {
-    const response = await fetchRequest(url, options);
+async function request(url, options, type = '') {
+    const response = await fetchRequest(url, options, type);
     if(response == 'TokenExpired') {
-        response = await fetchRequest(url, options);
+        response = await fetchRequest(url, options, type);
     }
     return response;
 }

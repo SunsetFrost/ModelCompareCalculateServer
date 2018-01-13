@@ -5,6 +5,7 @@ import os
 import subprocess
 import shutil
 import sys
+import time
 
 from pymongo import MongoClient
 from pymongo import UpdateOne
@@ -13,7 +14,7 @@ from bson.objectid import ObjectId
 from pyspark.sql import SparkSession
 from pyspark.sql import Row
 
-rootPath = "D:\\Program\\ZhongShanModel\\Server"
+rootPath = "D:\\Program\\ZhongShanModel\\CalculateServer"
 
 #根据配置文件 返回实例id 暂时读配置文件
 def getInstanceId(path):
@@ -92,11 +93,13 @@ def changeInstanceState(instanceId, state):
     client = MongoClient('127.0.0.1', 27017)
     db = client.SteinsServer
     collection = db.Instance
+    timeNow = time.asctime(time.localtime(time.time()))
     result = collection.update_one(
         { '_id': ObjectId(instanceId) },
         { 
             '$set': {
-                "state": state
+                "state": state,
+                "endTime": timeNow
             }
         }
     )

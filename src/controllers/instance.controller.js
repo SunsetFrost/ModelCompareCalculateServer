@@ -49,14 +49,17 @@ async function invokeScriptByCmd() {
 //调用python脚本 bat
 async function invokeScriptByBat() {
     const pCwd = process.cwd() + '\\src\\tools';
-    const invokeFile = '\\test.bat';
+    const invokeFile = '\\start_model.bat';
     const invokePath = pCwd + invokeFile;
 
-    const startTime = moment();
-    const { stdout, stderr } = execFile(invokePath, [setting.mongodb.host, setting.mongodb.name]);
-    const endTime = moment();
-
-    //console.log('time:' + endTime.diff(startTime, "s"));
+    // try {
+        const startTime = moment();
+        const { stdout, stderr } = await execFile(invokePath, [setting.mongodb.host, setting.mongodb.name]);
+        const endTime = moment();
+        return endTime.diff(startTime, "s");
+    // } catch (error) {
+    //     return error;
+    // }
 }
 
 //创建实例

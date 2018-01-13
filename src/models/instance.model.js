@@ -11,6 +11,7 @@ const MongooseBase = require('./mongoose.model');
 // RUN_FAILED,
 // RUN_SUCCEED
 //DATA_PROCESSING
+//FINISH
 
 class InstanceDB extends MongooseBase {
     constructor() {
